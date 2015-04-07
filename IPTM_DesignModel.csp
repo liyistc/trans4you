@@ -1,0 +1,215 @@
+﻿
+//————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// This model is the simplifed version of the original one.                                                   |
+//————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+enum{Initial,Chinatown,OutramPark,HarbourFront,TiongBahru,RafflesPlace,Bugis,DhobyGhaut,MarinaBay,Terminal};
+enum{ArriveStop,AtTerminal,Moving};
+enum{AtStop,OnBus};
+enum{GetOn,GetOff};
+enum{CreditCard,PrePay,OwnTicket,Warning};
+enum{Deduct,Deposit,Change};
+
+#define T_COST 2;
+
+//channel to Bus_Info_Manager()
+channel ch_bim_rec 0;
+//channel to Account_Manager()
+channel ch_acc_rec 0;
+//channel to notify user though SMS
+channel ch_SMS 10;
+//***************************************************************************************************************************************************************************************
+
+//Part 1: Bus Behavior
+//The bus detection part is cut from the full version.
+//It is because in this simplified model, there is only one user, no need to let bus to detect.
+//***************************************************************************************************************************************************************************************
+var bus_status[2] = [AtTerminal(2)];
+var bus_location[2] = [Initial(2)];
+
+Bus_0() =    start.0                  {bus_status[0]=Moving}
+		  -> arrive.0.Chinatown       {bus_status[0]=ArriveStop;bus_location[0]=Chinatown} 
+          -> leave.0.Chinatown        {bus_status[0]=Moving}   
+          -> arrive.0.OutramPark      {bus_status[0]=ArriveStop;bus_location[0]=OutramPark}   
+          -> leave.0.OutramPark       {bus_status[0]=Moving}   
+          -> arrive.0.HarbourFront    {bus_status[0]=AtTerminal;bus_location[0]=HarbourFront}  
+          -> Skip;
+          
+Bus_1() =    start.1                  {bus_status[1]=Moving}
+          -> arrive.1.TiongBahru      {bus_status[1]=ArriveStop;bus_location[1]=TiongBahru} 
+          -> leave.1.TiongBahru       {bus_status[1]=Moving}  
+          -> arrive.1.OutramPark      {bus_status[1]=ArriveStop;bus_location[1]=OutramPark} 
+          -> leave.1.OutramPark       {bus_status[1]=Moving}   
+          -> arrive.1.RafflesPlace    {bus_status[1]=ArriveStop;bus_location[1]=RafflesPlace} 
+          -> leave.1.RafflesPlace     {bus_status[1]=Moving}    
+          -> arrive.1.Bugis           {bus_status[1]=AtTerminal;bus_location[1]=Bugis} 
+          -> Skip;
+                   
+Bus_Behavior() = Bus_0() ||| Bus_1();
+
+//Part 2: User Behavior
+//Unlike the full version, when a user gets on bus, a message will be automatically sent to the server.
+//***************************************************************************************************************************************************************************************
+var user_status = AtStop;
+var user_location = Chinatown;
+var user_onbus = -1;
+var user_geton_busstop = 0;
+
+User_Geton_OP(bus,busstop) = [user_status==AtStop && user_location==busstop && bus_location[bus]==busstop && bus_status[bus]==ArriveStop]
+                             atomic{
+                             getonbus {user_status=OnBus;user_onbus=bus;user_geton_busstop=busstop} 
+                             -> ch_bim_rec!GetOn.bus.busstop //Inform the server
+                             -> Skip};
+                                                                   
+User_Geton() = []bus:{0..1}@([]busstop:{Chinatown..MarinaBay}@User_Geton_OP(bus,busstop));
+
+User_Getoff_OP(bus,busstop) = [user_status==OnBus && user_onbus==bus && bus_location[bus]==busstop && bus_status[bus]==ArriveStop && user_geton_busstop!=busstop]
+                              atomic{
+                              getoffbus {user_status=AtStop;user_location=busstop;user_onbus=-1} 
+                              -> ch_bim_rec!GetOff.bus.busstop
+                              -> Skip};
+                                   
+User_Getoff() = []bus:{0..1}@([]busstop:{Chinatown..MarinaBay}@User_Getoff_OP(bus,busstop));
+User_Behavior() = User_Geton();User_Behavior()
+                  []
+                  User_Getoff();User_Behavior()
+                  []
+                  Skip;
+//***************************************************************************************************************************************************************************************
+
+//Part 3: User Operation
+//In order to reduce the states, here user can only do the operation once.
+//***************************************************************************************************************************************************************************************
+var user_pay_method = CreditCard;
+var user_prepay_acc = 2;
+var user_ticket = false;
+
+User_Deposit() = ch_acc_rec!Deposit -> Skip [] Skip;
+User_Change() = ch_acc_rec!Change -> Skip [] Skip;
+
+User_Operation() = User_Deposit() ||| User_Change();
+//***************************************************************************************************************************************************************************************
+
+//Part 4: Bus Info Manager
+//This part is to distribute coming messages from the bus(however, in this model, it's from the user directly).
+//***************************************************************************************************************************************************************************************
+Bus_Info_Manager() = ch_bim_rec?x.y.z -> ifa(x==GetOn)
+                                         {
+                                         	ch_acc_rec!Deduct -> Bus_Info_Manager()
+                                         }
+                                         else
+                                         {
+                                         	Bus_Info_Manager()
+                                         }[]Skip;
+//***************************************************************************************************************************************************************************************
+
+//Part 5: Account Manager
+//It's the unfixed version, which will lead to an error. (Details are in verification part)
+//***************************************************************************************************************************************************************************************                                         
+Account_Manager() = ch_acc_rec?x -> ifa(x==Deduct)
+                                    {
+                                    	ifa(user_pay_method==PrePay)
+                                    	{
+                                    		deduct_PP {user_prepay_acc = user_prepay_acc-T_COST} 
+                                    		-> ch_SMS!PrePay 
+                                    		-> ifa(user_prepay_acc<=0)
+                                    		   {
+                                    		    	ch_SMS!Warning -> Account_Manager()
+                                    		   }
+                                    		   else
+                                    		   {Account_Manager()}
+                                    	}
+                                        else
+                                        {
+                                            ifa(user_ticket==false) //Here is the reason of the error. It shoud first check whether the user owns a ticket!
+                                            {
+                                        		deduct_CC ->  getticket {user_ticket=true} -> ch_SMS!CreditCard -> Account_Manager()
+                                        	}
+                                        	else
+                                        	{
+                                        		ch_SMS!OwnTicket -> Account_Manager()
+                                        	}
+                                        }
+                                    }
+                                    else
+                                    {
+                                    	ifa(x==Deposit)
+                                    	{deposit {user_prepay_acc = user_prepay_acc+50} -> Account_Manager()}
+                                    	else
+                                    	{change {user_pay_method = PrePay} -> Account_Manager()}
+                                    }[]Skip;
+                                    
+Server() = Bus_Info_Manager() ||| Account_Manager();
+//***************************************************************************************************************************************************************************************
+
+//Part 6: Fixed Account Manager
+//Fixed the above part. 
+//***************************************************************************************************************************************************************************************
+Account_Manager_fixed() = ch_acc_rec?x -> ifa(x==Deduct)
+	                                      {
+		                                       if(user_ticket==false) //Here, we FIRST to check whether a ticket is owned.
+		                                       {
+			                                      	ifa(user_pay_method==PrePay)
+			                                       	{
+			                                       		deduct_PP {user_prepay_acc = user_prepay_acc-T_COST} 
+			                                      		-> ch_SMS!PrePay 
+				                                  		-> ifa(user_prepay_acc<=0)
+				                                  		   {
+				                                   		    	ch_SMS!Warning -> Account_Manager_fixed()
+				                                   		   }
+				                                   		   else
+				                                   		   {Account_Manager_fixed()}
+				                                   	}
+				                                    else
+				                                    {
+				                                      	deduct_CC ->  getticket {user_ticket=true} -> ch_SMS!CreditCard -> Account_Manager_fixed()
+				                                    }
+			                                   }
+			                                   else
+			                                   {
+			                                      	ch_SMS!OwnTicket -> Account_Manager_fixed()
+			                                   }
+			                                }
+			                                else
+			                                {
+			                                   	ifa(x==Deposit)
+			                                   	{deposit {user_prepay_acc = user_prepay_acc+50} -> Account_Manager_fixed()}
+			                                   	else
+			                                   	{change {user_pay_method = PrePay} -> Account_Manager_fixed()}
+			                                }[]Skip;
+                             
+Server_fixed() = Bus_Info_Manager() ||| Account_Manager_fixed();
+//**************************************************************************************************************************************************************************************
+
+//Part 7: Assertions 
+//**************************************************************************************************************************************************************************************
+Nature_Behavior() = User_Behavior() ||| Bus_Behavior();
+System() = Nature_Behavior() ||| User_Operation() ||| Server();
+System_fixed() = Nature_Behavior() ||| User_Operation() ||| Server_fixed();
+
+//To check whether the system is deadlock-free
+#assert System() deadlockfree;       //YES
+#assert System_fixed() deadlockfree; //YES
+
+//Response property 1
+//The user must be informed after getting on a bus
+#assert System() |= [](getonbus -> <>(ch_SMS!1 || ch_SMS!0 || ch_SMS!2));       //YES
+#assert System_fixed() |= [](getonbus -> <>(ch_SMS!1 || ch_SMS!0 || ch_SMS!2)); //YES
+
+//Response property 2
+//The user must be warned when the balance is insufficient
+#define state_bns user_prepay_acc<=0; 
+#assert System() |= <>(state_bns -> <>ch_SMS!3);       //YES
+#assert System_fixed() |= <>(state_bns -> <>ch_SMS!3); //YES
+
+//Reliability property 1
+//The user can not be charged when hi/she owns a ticket
+#define state_ot user_ticket == true;
+#assert System() |= []!(state_ot && (deduct_PP || deduct_CC));       //NO
+#assert System_fixed() |= []!(state_ot && (deduct_PP || deduct_CC)); //YES
+
+//Reliability property 2
+//Account balance will be increased when the user deposits
+#define state_bd user_prepay_acc>=50;
+#assert System() |= [](ch_acc_rec!Deposit -> <>state_bd);       //YES
+#assert System_fixed() |= [](ch_acc_rec!Deposit -> <>state_bd); //YES
