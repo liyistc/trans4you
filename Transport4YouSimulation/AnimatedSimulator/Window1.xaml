@@ -1,0 +1,153 @@
+﻿<Window x:Class="Transport4YouSimulation.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Transport4You Simulator" Height="740" Width="1200" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize" Closing="Window_Closing">
+
+    <Window.Resources>
+        <Style x:Key="textboxStyle" TargetType="{x:Type TextBox}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=pause_button,Path=IsEnabled}" Value="True">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Background="Black">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="1000"></ColumnDefinition>
+            <ColumnDefinition Width="5"></ColumnDefinition>
+            <ColumnDefinition Width="180"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <ScrollViewer x:Name="ScrollBoard" Grid.Row="1" Grid.Column="1" Height="698" Width="1000" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top" CanContentScroll="True">
+            <Canvas x:Name="Carrier" Background="Silver" Width="2400" Height="1700">
+                <Canvas.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding Path=Value, ElementName=zoomSlider}" ScaleY="{Binding Path=Value, ElementName=zoomSlider}" KeyboardNavigation.DirectionalNavigation="Local"></ScaleTransform>
+                </Canvas.LayoutTransform>
+            </Canvas>
+        </ScrollViewer>
+        
+        <Grid Grid.Column="3" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="5"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
+                <RowDefinition Height="5"></RowDefinition>
+                <RowDefinition Height="370"></RowDefinition>
+                <RowDefinition Height="5"></RowDefinition>
+                <RowDefinition Height="70"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <GroupBox Header="Zoom" Grid.Row="0">
+                <Slider x:Name="zoomSlider" Minimum="0.41" Maximum="1" Value="1"  Grid.ColumnSpan="2" SmallChange="0.2" Orientation="Horizontal" IsHitTestVisible="True" BorderThickness="2" IsSnapToTickEnabled="True" LargeChange="0.2" TickFrequency="0.2" TickPlacement="BottomRight" Padding="2" />
+            </GroupBox>
+
+            <GroupBox Header="Parameters" Grid.Row="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="5"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="5"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="5"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="5"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="5"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label Content="StartPoint:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"></Label>
+                    <Label Content="Destination:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center"></Label>
+                    <ComboBox x:Name="startStop" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch"></ComboBox>
+                    <ComboBox x:Name="destStop" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch"></ComboBox>
+                    <Button Content="Plan" ToolTip="Display Route Plan Result" Click="Plan_Click" Grid.Column="0" Grid.Row="4" Width="68"></Button>
+                    <CheckBox x:Name="cross" Content="CrossEnabled" ToolTip="Enable Road Crossing in Route Plan" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="4"></CheckBox>
+                    <Button Content="+Passenger" ToolTip="Add New Passenger(Registered/Non-registerd) to Simulator" Click="Add_Click" Grid.Column="0" Grid.Row="6" Width="68"></Button>
+                    <TextBox x:Name="userid" Text="" Grid.Column="1" Grid.Row="6" VerticalContentAlignment="Center">
+
+                    </TextBox>
+                    <Label Content='T__COST:' Grid.Row="8" Grid.Column="0" VerticalAlignment="Center"></Label>
+                    <Label Content='T__VAL:' Grid.Row="10" Grid.Column="0" VerticalAlignment="Center"></Label>
+                    <TextBox x:Name="t_cost" Grid.Row="8" Grid.Column="1" VerticalContentAlignment="Center" Style="{StaticResource textboxStyle}"></TextBox>
+                    <TextBox x:Name="t_val" Grid.Row="10" Grid.Column="1" VerticalContentAlignment="Center" Style="{StaticResource textboxStyle}"></TextBox>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="Status" Grid.Row="4">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="50"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="250"></RowDefinition>                       
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Label Content="BusStatus:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></Label>
+                    <ComboBox x:Name="selectedBus" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" SelectionChanged="selectedBus_SelectionChanged"></ComboBox>
+                    <TextBlock x:Name="busStatus" Grid.ColumnSpan="2" Grid.Row="1" Text="{Binding Path=OnBoardDesc}" TextWrapping="Wrap" Padding="3"></TextBlock>
+                    <Label Content="UserStatus:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center"></Label>
+                    <ComboBox x:Name="selectedUser" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" SelectionChanged="selectedUser_SelectionChanged"></ComboBox>
+                    
+                    <Grid Name="userInfoGrid" Grid.ColumnSpan="2" Grid.Row="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"></RowDefinition>
+                            <RowDefinition Height="25"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="75"></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Content="From:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></Label>
+                        <Label Grid.Column="1" Grid.Row="0" Content="{Binding Path=StartStop.StopName}" VerticalAlignment="Center"></Label>
+                        <Label Content="To:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></Label>
+                        <Label Grid.Column="1" Grid.Row="1" Content="{Binding Path=DestinationStop.StopName}" VerticalAlignment="Center"></Label>
+                        <TextBox x:Name="userStatus" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding Path=Message}" TextWrapping="Wrap" ToolTip="Message History" Padding="3" Background="Silver" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Cursor="Arrow"></TextBox>
+                    </Grid>
+                
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Grid.Row="6">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"></RowDefinition>
+                        <RowDefinition Height="5"></RowDefinition>
+                        <RowDefinition Height="25"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="90"></ColumnDefinition>
+                        <ColumnDefinition Width="90"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="start_button" Grid.Row="0" Grid.Column="0" Content="Start" Width="68" Click="Start_Click" ToolTip="Start/Resume Simulation"></Button>
+                    <Button x:Name="pause_button" Grid.Row="0" Grid.Column="1" Content="Pause" IsEnabled="False" Click="Pause_Click" ToolTip="Pause Simulation" Width="68"></Button>
+                    <Button Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" Width="25" Click="server_button_Click" ToolTip="Administrator Window">
+                        <Image Source="Img\server.png"></Image>
+                    </Button>
+                    <Button Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Width="25" Click="user_button_Click" ToolTip="User Window">
+                        <Image Source="Img\user.png"></Image>
+                    </Button>
+                </Grid>
+            </GroupBox>
+                
+        </Grid>
+    </Grid>
+</Window>

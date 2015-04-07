@@ -1,0 +1,270 @@
+﻿<Window x:Class="Transport4YouSimulation.ServerWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:wpfdude="clr-namespace:Transport4YouSimulation"
+    Title="ServerWindow" Height="400" Width="600" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Focusable="True" Topmost="False" Closing="Window_Closing">
+    
+    <Window.Resources>
+        <wpfdude:RoadPointTypeConverter x:Key="roadPointTypeConvert"></wpfdude:RoadPointTypeConverter>
+
+        <ContextMenu x:Key="listViewContext">
+            <MenuItem Header="Add Row Above" IsHitTestVisible="True" Click="MenuItem_Click"></MenuItem>
+            <MenuItem Header="Add Row Below" IsHitTestVisible="True" Click="MenuItem_Click_1"></MenuItem>
+            <MenuItem Header="Delete Row" IsHitTestVisible="True" Click="MenuItem_Click_2"></MenuItem>
+        </ContextMenu>
+
+        <Style x:Key="addStopButtonStyle" TargetType="{x:Type Button}">
+            <Style.Triggers>         
+                <DataTrigger Binding="{Binding ElementName=busRouteView,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=busRouteView,Path=Items.Count}" Value="0">
+                    <Setter Property="IsEnabled" Value="True"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=stopsList,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=busLineList,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="addStopButtonStyle2" TargetType="{x:Type Button}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=stopsList,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=busLineList,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=busRouteView,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="deleteStopButtonStyle" TargetType="{x:Type Button}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=busLineList,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=busRouteView,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="updateBusButtonStyle" TargetType="{x:Type Button}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=busLineList,Path=SelectedIndex}" Value="-1">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Menu Grid.Row="0">
+            <MenuItem Header="Load">
+                <!--<MenuItem Header="Load Account Data" Click="LoadAccountData_Click"></MenuItem>
+                <MenuItem Header="Load Trip Data" Click="LoadTripData_Click"></MenuItem>-->
+                <MenuItem Header="Load Route Data" Click="LoadRouteData_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="User Guide"></MenuItem>
+                <MenuItem Header="About" Click="LoadAbout_Click"></MenuItem>
+            </MenuItem>
+        </Menu>
+        
+        <TabControl Grid.Row="1">
+            <TabItem Header="Account">
+                <ListView x:Name="accountTable" SelectionMode="Single" ItemsSource="{Binding}">
+                    <ListView.View>
+                        <GridView AllowsColumnReorder="False">
+                            <GridViewColumn Header="User ID">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=cellPhoneAddr}" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"></Label>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=name}" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"></Label>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Phone No">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=cellPhoneNumber}" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0"></Label>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Ticket">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding Path=hasTicket}" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Center"></CheckBox>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Issue Time">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=ticketBeginTime}" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Balance">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=balance}" BorderThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Pay by Credit">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding Path=isPayByCreditCard}" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Center"></CheckBox>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Credit Card No">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Label Content="{Binding Path=creditCardNumber}" BorderThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            
+            <TabItem Header="Trip">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="10"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="User" Grid.Column="0">
+                        <ListBox x:Name="userList" SelectionMode="Single" ItemsSource="{Binding}" SelectionChanged="userList_SelectionChanged"></ListBox>
+                    </GroupBox>
+                    <ListView x:Name="tripTable" SelectionMode="Single" ItemsSource="{Binding}" Grid.Column="2">
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="False">
+                                <GridViewColumn Header="Time">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Label Content="{Binding Path=time}" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Bus Line">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Label Content="{Binding Path=busLine}" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>                                
+                                <GridViewColumn Header="Board/Alight">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding Path=isBoard}" IsEnabled="False" HorizontalAlignment="Center" VerticalAlignment="Center"></CheckBox>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Stop" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Label Content="{Binding Path=stopName}" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Route" IsSelected="False">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"></ColumnDefinition>
+                        <ColumnDefinition Width="10"></ColumnDefinition>
+                        <ColumnDefinition Width="250"></ColumnDefinition>
+                        <ColumnDefinition Width="50"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="BusLine" Grid.Column="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition Height="35"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <ListBox x:Name="busLineList" Grid.Row="0" SelectionMode="Single" ItemsSource="{Binding}" SelectionChanged="busLineList_SelectionChanged"></ListBox>
+                            <Button Content="Update" Click="Update_Button_Click" Height="25" Width="75" Grid.Row="1" Style="{StaticResource updateBusButtonStyle}"></Button>
+                        </Grid>
+                    </GroupBox>
+                    
+                    <ListView x:Name="busRouteView" SelectionMode="Single" Grid.Column="2" ItemsSource="{Binding Path=Route}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <Setter Property="ContextMenu" Value="{StaticResource listViewContext}"></Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="False">
+                                <GridViewColumn Width="120" Header="StopName">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Height="24">
+                                                <CheckBox x:Name="cbx" IsEnabled="False" VerticalAlignment="Center" IsChecked="{Binding Mode=OneWay, Converter={StaticResource roadPointTypeConvert}}"></CheckBox>
+                                                <Label Width="80" Content="{Binding Path=StopName}" VerticalAlignment="Center" HorizontalAlignment="Center"></Label>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>      
+                                </GridViewColumn>
+                                
+                                <GridViewColumn Width="100" Header="Coordinate">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Height="24">
+                                                <TextBox Width="100" IsReadOnly="{Binding Mode=OneWay, Converter={StaticResource roadPointTypeConvert}}" BorderThickness="0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="{Binding Path=Coordinate}"></TextBox>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>                                
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    
+                    <Grid Grid.Column="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="125"></RowDefinition>
+                            <RowDefinition Height="30"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        
+                        <Button Content="/\" Grid.Row="0" Height="30" Width="30" ToolTip="Add Stop Above" Click="AddStopAbove_Click" VerticalAlignment="Bottom" Style="{StaticResource addStopButtonStyle2}"></Button>
+                        <Button Content="-" Grid.Row="1" Height="30" Width="30" ToolTip="Delete Stop" Click="DeleteStop_Click" VerticalAlignment="Center" Style="{StaticResource deleteStopButtonStyle}"></Button>
+                        <Button Content="\/" Grid.Row="2" Height="30" Width="30" ToolTip="Add Stop Below" Click="AddStopBelow_Click" VerticalAlignment="Top" Style="{StaticResource addStopButtonStyle}"></Button>
+                    </Grid>
+                    
+                    <GroupBox Header="Add Stop Point" Grid.Column="4">
+                        <ListBox x:Name="stopsList" SelectionMode="Single" ItemsSource="{Binding}"></ListBox>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        
+    </Grid>
+</Window>

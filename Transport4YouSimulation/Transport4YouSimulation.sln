@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimatedSimulator", "AnimatedSimulator\AnimatedSimulator.csproj", "{011C0473-8C58-46CE-9E62-F0D2DB51BA22}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mainframe", "Mainframe\Mainframe.csproj", "{AA31E729-01A4-472C-84F2-870CA0E64A64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transport4You.Common", "Transport4You.Common\Transport4You.Common.csproj", "{C80CDDC7-B95D-4020-AAF8-197B8BC22379}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{011C0473-8C58-46CE-9E62-F0D2DB51BA22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{011C0473-8C58-46CE-9E62-F0D2DB51BA22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{011C0473-8C58-46CE-9E62-F0D2DB51BA22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{011C0473-8C58-46CE-9E62-F0D2DB51BA22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA31E729-01A4-472C-84F2-870CA0E64A64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA31E729-01A4-472C-84F2-870CA0E64A64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA31E729-01A4-472C-84F2-870CA0E64A64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA31E729-01A4-472C-84F2-870CA0E64A64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C80CDDC7-B95D-4020-AAF8-197B8BC22379}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C80CDDC7-B95D-4020-AAF8-197B8BC22379}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C80CDDC7-B95D-4020-AAF8-197B8BC22379}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C80CDDC7-B95D-4020-AAF8-197B8BC22379}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

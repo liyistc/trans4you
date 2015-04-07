@@ -1,0 +1,20 @@
+﻿<Window x:Class="Transport4YouSimulation.About"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="About Transport4You" Height="250" Width="350" ResizeMode="NoResize" WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen" Background="Silver">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"></RowDefinition>
+            <RowDefinition Height="6"></RowDefinition>
+            <RowDefinition Height="18"></RowDefinition>
+            <RowDefinition Height="18"></RowDefinition>
+            <RowDefinition Height="18"></RowDefinition>
+            <RowDefinition Height="18"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Image Grid.Row="0" Grid.Column="0" Source="Img/AboutImg.bmp"></Image>
+        <Label Grid.Row="2" Foreground="Black" Content="    Author: Li Yi, Yang Hang, Wu Huanan. All Rights Reserved."></Label>
+        <Label Grid.Row="4" Foreground="Black" Content="    This is a part of the project submission for SCORE 2011, the"></Label>
+        <Label Grid.Row="5" Foreground="Black" Content="    Student Contest on Software Engineering. "></Label>
+    </Grid>
+</Window>

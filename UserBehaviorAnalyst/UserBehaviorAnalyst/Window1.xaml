@@ -1,0 +1,164 @@
+﻿<Window x:Class="UserBehaviorAnalyst.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:charting="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+    Title="User Behavior Analyst" Height="350" Width="500" ResizeMode="CanMinimize">
+    
+    <Window.Resources>
+        
+    </Window.Resources>
+    
+    <Grid>
+        <TabControl>
+            <TabItem Header="Config" IsSelected="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"></ColumnDefinition>
+                        <ColumnDefinition Width="5"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <GroupBox Header="Parameters" Grid.Column="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Label Grid.Row="0" Grid.Column="0" Content="Users Count" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="2" Grid.Column="0" Content="BusLines Count" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="4" Grid.Column="0" Content="Records Count" VerticalAlignment="Center"></Label>
+                            <TextBox x:Name="userCount" Grid.Row="0" Grid.Column="1" Text="20"></TextBox>
+                            <TextBox x:Name="busLineCount" Grid.Row="2" Grid.Column="1" Text="8"></TextBox>
+                            <TextBox x:Name="recordCount" Grid.Row="4" Grid.Column="1" Text="500"></TextBox>
+                            <Button x:Name="defineButton" Grid.Row="6" Grid.ColumnSpan="2" Content="Define User Preferences" Click="DefineUserPreferences_Click"></Button>
+                            <Button x:Name="generateButton" Grid.Row="8" Grid.ColumnSpan="2" IsEnabled="False" Content="Generate Behavioral Data" Click="GenerateData_Click"></Button>
+                            <Button x:Name="clearButton" Grid.Row="10" Grid.ColumnSpan="2" Content="Clear Behavioral Data" Click="ClearData_Click"></Button>
+                            <Button x:Name="analyseButton" Grid.Row="12" Grid.ColumnSpan="2" IsEnabled="True" Content="Analyse User Behavior" Click="analyseButton_Click"></Button>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="userPreferences" Header="User Preferences" Grid.Column="2" IsEnabled="False">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                                <RowDefinition Height="5"></RowDefinition>
+                                <RowDefinition Height="25"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Label Grid.Row="0" Grid.Column="0" Content="User ID" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="2" Grid.Column="0" Content="Preference Ratio" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="4" Grid.Column="0" Content="Preferred BusLine" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="6" Grid.Column="0" Content="Preferred BoardingTime" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="8" Grid.Column="0" Content="Preferred AlightTime" VerticalAlignment="Center"></Label>
+                            <Label Grid.Row="10" Grid.Column="0" Content="Error Range(mins)" VerticalAlignment="Center"></Label>
+                            <ComboBox x:Name="userIdSelect" Grid.Row="0" Grid.Column="1" SelectedIndex="0" ItemsSource="{Binding}" SelectionChanged="userIdSelect_SelectionChanged"></ComboBox>
+                            <!--<ComboBox x:Name="ratio" Grid.Row="2" Grid.Column="1" ItemsSource="{Binding}" SelectionChanged="ratio_SelectionChanged"></ComboBox>-->
+                            <Slider x:Name="ratio" Grid.Row="2" Grid.Column="1" Maximum="1.0" Minimum="0.5" Value="{Binding Path=possibility}" TickPlacement="BottomRight" IsMoveToPointEnabled="True" IsSnapToTickEnabled="True" TickFrequency="0.1" ClipToBounds="False" SnapsToDevicePixels="False" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="2"></Slider>
+                            <ComboBox x:Name="busLineSelect" Grid.Row="4" Grid.Column="1" ItemsSource="{Binding}" SelectionChanged="busLineSelect_SelectionChanged"></ComboBox>
+                            <TextBlock x:Name="bTime" Grid.Row="6" Grid.Column="1" VerticalAlignment="Center"></TextBlock>
+                            <TextBlock x:Name="aTime" Grid.Row="8" Grid.Column="1" VerticalAlignment="Center"></TextBlock>
+                            <TextBlock x:Name="errorRange" Grid.Row="10" Grid.Column="1" VerticalAlignment="Center"></TextBlock>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            
+            <TabItem x:Name="resultTab" Header="TripRecord" IsSelected="False">
+                <ListView Width="450" Margin="10" ItemsSource="{Binding Path=TripRecord}" Name="lstRecord">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="CellPhoneAddr">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=CellPhoneAddr}"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="BoardTime">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=BoardTime,StringFormat={}\{0:t\}}"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="AlightTime">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=AlightTime,StringFormat={}\{0:t\}}"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="BusLine">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=BusLine}"></TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+            
+            <TabItem x:Name="analyseTab" Header="AnalyseResult" IsSelected="False">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="95"></ColumnDefinition>
+                        <ColumnDefinition Width="5"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <ListBox x:Name="resultUserList" Grid.Column="0" Grid.RowSpan="2" ItemsSource="{Binding}" SelectionChanged="resultUserList_SelectionChanged"></ListBox>
+                    <charting:Chart x:Name="chart" Title="User Preferences" LegendTitle="BusLines" Grid.Column="2" Grid.Row="0">
+                        <charting:Chart.Series>
+                            <charting:PieSeries x:Name="pieChart" ItemsSource="{Binding}" DependentValuePath="Value.Count" IndependentValuePath="Key" IsSelectionEnabled="True" SelectionChanged="pieChart_SelectionChanged"></charting:PieSeries>
+                        </charting:Chart.Series>
+                    </charting:Chart>
+                    <TextBlock x:Name="timeInterval" Grid.Column="2" Grid.Row="0" Height="30" VerticalAlignment="Top" HorizontalAlignment="Center"></TextBlock>
+                    <Popup x:Name="popup" Width="350" Height="250" Grid.ColumnSpan="3" Placement="Center" StaysOpen="False" PopupAnimation="Fade" AllowsTransparency="True">
+                        <charting:Chart x:Name="chart2" Title="Time Distribution" Background="Black" OpacityMask="BlueViolet" Foreground="WhiteSmoke" BorderBrush="White">
+                            <charting:Chart.LegendStyle>
+                                <Style TargetType="Control">
+                                    <Setter Property="Width" Value="0"/>
+                                    <Setter Property="Height" Value="0"/>
+                                </Style>
+                            </charting:Chart.LegendStyle>
+                            <charting:Chart.Series>
+                                <charting:ColumnSeries ItemsSource="{Binding}" DependentValuePath="Value" IndependentValuePath="Key"></charting:ColumnSeries>
+                            </charting:Chart.Series>
+                        </charting:Chart>
+                    </Popup>
+                </Grid>      
+            </TabItem>
+        </TabControl>
+        
+    </Grid>
+</Window>
